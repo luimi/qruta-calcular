@@ -1,0 +1,13 @@
+{
+  "name": "qruta-calcular",
+  "version": "1.0.0",
+  "description": "Libreria de calculo",
+  "main": "index.js",
+  "scripts": {
+  },
+  "keywords": [
+    "qruta"
+  ],
+  "author": "lui2mi",
+  "license": "ISC"
+}
