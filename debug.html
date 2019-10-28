@@ -1,0 +1,106 @@
+<html lang="en">
+
+<head>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <!-- Angular Material style sheet -->
+    <link rel="stylesheet"
+        href="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.12/angular-material.min.css">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.5.1/dist/leaflet.css"
+        integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
+        crossorigin="" />
+</head>
+
+<body ng-app="DebugApp" ng-controller="Controller" ng-cloak>
+    <!--
+    Your HTML content here
+  -->
+
+    <!-- Angular Material requires Angular.js Libraries -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.6/angular.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.6/angular-animate.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.6/angular-aria.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.6/angular-messages.min.js"></script>
+
+    <!-- Angular Material Library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/angular_material/1.1.12/angular-material.min.js"></script>
+
+    <!-- Make sure you put this AFTER Leaflet's CSS -->
+    <script src="https://unpkg.com/leaflet@1.5.1/dist/leaflet.js"
+        integrity="sha512-GffPMF3RvMeYyc1LWMHtK8EbPv0iNZ8/oTtHPx9/cc2ILxQ+u905qIwdpULaqDkyBKgOaB57QTMg7ztg8Jm2Og=="
+        crossorigin=""></script>
+
+    <script type="text/javascript" src="result.js"></script>
+    <md-content>
+
+        <div layout="row">
+            <div layout="column" flex="70" style="height: 100vh;">
+                <div id="map" flex></div>
+            </div>
+            <div layout="column" flex>
+                <md-toolbar>
+                    <div class="md-toolbar-tools">
+                        <h2 flex md-truncate>Result Viewer</h2>
+                    </div>
+                </md-toolbar>
+                <md-list-item class="md-3-line" ng-repeat="option in result.options" ng-click="null">
+
+                    <div class="md-list-item-text" layout="column">
+                        <h3><span ng-repeat="route in option.routes">
+                                {{route.route.company}} - {{route.route.name}}
+                            </span></h3>
+                        <h4>{{ option.startWalkDistance}} - {{ option.routeDistance }} - {{ option.endWalkDistances }}
+                        </h4>
+                        <p></p>
+                    </div>
+                </md-list-item>
+            </div>
+        </div>
+    </md-content>
+    <!-- Your application bootstrap  -->
+    <script type="text/javascript">
+        /**
+         * You must include the dependency on 'ngMaterial' 
+         */
+        var app = angular.module('DebugApp', ['ngMaterial', 'ngMessages']);
+
+        app.controller('Controller', function ($scope) {
+            if (resultado) {
+                $scope.result = resultado;
+                console.log($scope.result);
+
+            }
+            /**
+            * Map Initialization 
+            */
+            var map = L.map('map').setView([10.980084, -74.801204], 13);
+            L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
+            }).addTo(map);
+            setTimeout(() => {
+
+                map.invalidateSize();
+                var start = L.marker(resultado.start).addTo(map);
+                var end = L.marker(resultado.end).addTo(map);
+
+                // map.flyTo(resultado.start);
+
+
+                let group = L.featureGroup([start, end]);
+                map.fitBounds(group.getBounds());
+
+            }, 3000);
+
+
+        });
+
+
+    </script>
+
+</body>
+
+</html>
+
+<!--
+Copyright 2016-2019 Google Inc. All Rights Reserved. 
+Use of this source code is governed by an MIT-style license that can be found in the LICENSE file at https://material.angularjs.org/latest/license.
+-->

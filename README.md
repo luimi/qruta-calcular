@@ -1,14 +1,21 @@
 This algorithm pretends to solve the efective route of public transport or privated routes.
+===
 
-Installation
+**Installation**
+
+```
 npm install --save qruta-calcular
+```
 
-Usage
-const calculate = require("qruta-calcular")
+**Usage**
 
-// ---
+```
+const calculate = require("qruta-calcular");
+```
 
-await calculate({rutas: **arrayOfRoutes**, config: **configuration**, origen: **startLocation**, destino: **endLocation**, area: **area**, qty: **Quantity**}) 
+```
+await calculate({rutas: arrayOfRoutes, config: configuration, origen: startLocation, destino: endLocation, area: area, qty: Quantity});
+```
 
 #rutas: 
 array of all posible routes
@@ -19,14 +26,14 @@ array of all posible routes
     {
         "id":"routeId",
         "area":{
-            "1":["polygon",["lat","lng"]]
+            "1":[[lat,lng]]
         },
         "distances":[
             0,
             23
         ],
         "path":[
-            ["lat","lng","stop"]
+            [lat,lng,stop]
         ],
         "name":"routeName",
         "company":"companyName",
