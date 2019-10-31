@@ -1,13 +1,13 @@
 This algorithm pretends to solve the efective route of public transport or privated routes.
 ===
 
-**Installation**
+## Installation
 
 ```
 npm install --save qruta-calcular
 ```
 
-**Usage**
+## Usage
 
 ```
 const calculate = require("qruta-calcular");
@@ -17,7 +17,8 @@ const calculate = require("qruta-calcular");
 await calculate({rutas: arrayOfRoutes, config: configuration, origen: startLocation, destino: endLocation, area: area, qty: Quantity});
 ```
 
-#rutas: 
+### rutas
+ 
 array of all posible routes
 **Example**:
 
@@ -51,33 +52,43 @@ array of all posible routes
 - **company**: Name of the company.
 - **details**: Aditional info about the route.
 
-#config
+### config
+
 Object of configutation
 **Example**:
 
 ```
 {
+  "walkInterval": 500,
   "avgError": 0.3,
   "proportion": 10,
   "walkingDistance": 200,
   "busSpeed": 45
 }
 ```
+- **walkInterval**: Distance between areas
 - **avgError**: Average percentage of error.
 - **proportion**: This makes more or less important the walking distance.
 - **walkingDistance**: Distance to walk between 2 routes.
 - **busSpeed**: Average bus speed, this will help to get the average time.
 
-#origen
+### origen
+
 The origin location in [lat,lng]
-#destino
+
+### destino
+
 The destiny location in [lat,lng]
-#area
+
+### area
+
 Number of the area to search
-#qty
+
+### qty
+
 Number of maximun responses
 
-#response:
+## response
 
 ```
 {
@@ -96,7 +107,10 @@ Number of maximun responses
             name: 'C17',
             details: '4125 Centro - Santuario - Prado',
             company: 'Embusa',
-            polyline: 'kk{aAnopg'
+            polyline: 'kk{aAnopg',
+            stops: [
+              [ 10.95878,-74.80072000000001, 'stop name'  ],
+           ]
           },
           startPoint: [
             10.95878,
@@ -127,7 +141,7 @@ Number of maximun responses
 }
 ```
 
-**codeError**:
+**codeError**
 
 - 6: No near routes to the pickup area
 - 7: No near routes to the dropoff area
