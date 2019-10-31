@@ -42,15 +42,15 @@
                         <h2 flex md-truncate>Result Viewer</h2>
                     </div>
                 </md-toolbar>
-                <md-list-item class="md-3-line" ng-repeat="option in result.options" ng-click="null">
+                <md-list-item class="md-3-line md-long-text" ng-repeat="option in result.options"
+                    ng-click="showPath(option)">
 
                     <div class="md-list-item-text" layout="column">
-                        <h3><span ng-repeat="route in option.routes">
-                                {{route.route.company}} - {{route.route.name}}
-                            </span></h3>
-                        <h4>{{ option.startWalkDistance}} - {{ option.routeDistance }} - {{ option.endWalkDistances }}
-                        </h4>
-                        <p></p>
+                        <h3>{{ option.startWalkDistance}} - {{ option.routeDistance }} - {{ option.endWalkDistances }}
+                        </h3>
+                        <p><span ng-repeat="route in option.routes">
+                                {{route.route.company}} - {{route.route.name}} |
+                            </span></p>
                     </div>
                 </md-list-item>
             </div>
@@ -64,14 +64,46 @@
         var app = angular.module('DebugApp', ['ngMaterial', 'ngMessages']);
 
         app.controller('Controller', function ($scope) {
+            polylines = [];
+            stops = [];
+            colors = ['red', 'blue', 'purple']
             if (resultado) {
                 $scope.result = resultado;
-                console.log($scope.result);
-
+            }
+            $scope.showPath = function (option) {
+                let routes = option.routes;
+                if (polylines.length > 0) {
+                    polylines.forEach(line => {
+                        map.removeLayer(line);
+                    });
+                    polylines = [];
+                }
+                if (stops.length > 0) {
+                    stops.forEach(stop => {
+                        map.removeLayer(stop);
+                    });
+                    stops = [];
+                }
+                routes.forEach((route, index) => {
+                    let path = decode(route.route.polyline);
+                    var polyline = L.polyline(path, { color: colors[index] }).addTo(map);
+                    polylines.push(polyline);
+                    route.route.stops.forEach(stop => {
+                        let marker = L.marker(stop,{icon: getIcon('http://maps.google.com/mapfiles/kml/paddle/blu-diamond.png')}).addTo(map);
+                        stops.push(marker);
+                    });
+                });
             }
             /**
             * Map Initialization 
             */
+            getIcon = function (url) {
+                return L.icon({
+                    iconUrl: url,
+                    iconSize: [38, 40],
+                    iconAnchor: [20, 40]
+                });
+            }
             var map = L.map('map').setView([10.980084, -74.801204], 13);
             L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
                 attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
@@ -79,18 +111,53 @@
             setTimeout(() => {
 
                 map.invalidateSize();
-                var start = L.marker(resultado.start).addTo(map);
-                var end = L.marker(resultado.end).addTo(map);
-
-                // map.flyTo(resultado.start);
-
-
+                var start = L.marker(resultado.start,{icon: getIcon('http://maps.google.com/mapfiles/kml/paddle/A.png')}).addTo(map);
+                var end = L.marker(resultado.end,{icon: getIcon('http://maps.google.com/mapfiles/kml/paddle/B.png')}).addTo(map);
                 let group = L.featureGroup([start, end]);
                 map.fitBounds(group.getBounds());
 
             }, 3000);
+            decode = function (str) {
+                var index = 0,
+                    lat = 0,
+                    lng = 0,
+                    coordinates = [],
+                    shift = 0,
+                    result = 0,
+                    byte = null,
+                    latitude_change,
+                    longitude_change,
+                    factor = Math.pow(10, 5);
+                while (index < str.length) {
+                    byte = null;
+                    shift = 0;
+                    result = 0;
 
+                    do {
+                        byte = str.charCodeAt(index++) - 63;
+                        result |= (byte & 0x1f) << shift;
+                        shift += 5;
+                    } while (byte >= 0x20);
 
+                    latitude_change = ((result & 1) ? ~(result >> 1) : (result >> 1));
+
+                    shift = result = 0;
+
+                    do {
+                        byte = str.charCodeAt(index++) - 63;
+                        result |= (byte & 0x1f) << shift;
+                        shift += 5;
+                    } while (byte >= 0x20);
+
+                    longitude_change = ((result & 1) ? ~(result >> 1) : (result >> 1));
+
+                    lat += latitude_change;
+                    lng += longitude_change;
+
+                    coordinates.push([lat / factor, lng / factor]);
+                }
+                return coordinates;
+            }
         });
 
 

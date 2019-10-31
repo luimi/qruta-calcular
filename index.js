@@ -12,7 +12,7 @@ module.exports = (parametros) => {
 		end: datos.destino,
 		area: datos.area
 	};
-	return new Promise((result,reject) => {
+	return new Promise((result, reject) => {
 		const response = calcular();
 		result(response);
 	});
@@ -75,30 +75,35 @@ const enVia = (ubicacion, ruta, tipo) => {
 
 **/
 const altiBajos = (idsRutas, tipo, punto) => {
-	idsRutas.forEach((idRuta, index) => {
-		let recorrido = datos.rutas[datos.rutas.findIndex(x => x.id == idRuta)].path;
+	const maxDistance = datos.config.walkInterval * datos.area;
+	const walkDistance = maxDistance + (maxDistance * datos.config.avgError);
+	idsRutas.forEach((idRuta) => {
+		let ruta = datos.rutas[datos.rutas.findIndex(x => x.id == idRuta)];
+		let recorrido = ruta.path;
 		let puntoAB = [];
 		let puntoSw = true;
 		let puntoAI = 0;//Anterior Index
-		let puntoAD = 0;//Anterior Distancia
+		let puntoAD = undefined;//Anterior Distancia
 		recorrido.forEach((puntoActual, index) => {
-			if (index == 0) {
-				puntoAD = utils.computeDistanceBetween(punto, puntoActual);
-			}
-			if (index > 0) {
-				let puntoSD = utils.computeDistanceBetween(punto, puntoActual);//Siguiente Distancia
-				if (puntoAD < puntoSD && puntoSw && puntoAD <= (datos.config.walkInterval + (datos.config.walkInterval * datos.config.avgError))) {
-					puntoAB.push(puntoAI);
-					puntoSw = false;
-				} else if (puntoAD > puntoSD && !puntoSw) {
-					puntoSw = true;
-				} else if (puntoAD > puntoSD && index == recorrido.length - 1 &&
-					puntoSD <= datos.config.walkInterval) {
-					puntoAB.push(index);
+			if (!ruta.osisp || (ruta.osisp && puntoActual[2])) {
+				if (!puntoAD) {
+					puntoAD = utils.computeDistanceBetween(punto, puntoActual);
+				} else {
+					let puntoSD = utils.computeDistanceBetween(punto, puntoActual);//Siguiente Distancia
+					if (puntoAD < puntoSD && puntoSw && puntoAD <= walkDistance) {
+						puntoAB.push(puntoAI);
+						puntoSw = false;
+					} else if (puntoAD > puntoSD && !puntoSw) {
+						puntoSw = true;
+					} else if (puntoAD > puntoSD && index == recorrido.length - 1 &&
+						puntoSD <= walkDistance) {
+						puntoAB.push(index);
+					}
+					puntoAI = index;
+					puntoAD = puntoSD;
 				}
-				puntoAI = index;
-				puntoAD = puntoSD;
 			}
+
 		});
 		if (puntoAB.length > 0) proceso[tipo][idRuta] = puntoAB;
 	});
@@ -334,8 +339,14 @@ const verificarProceso = () => {
 			let distancia = 0;
 			rutas.forEach((ruta) => {
 				distancia += ruta.routeDistanceValue;
-				ruta.route.polyline = utils
-					.encode(ruta.route.path.splice(ruta.inicio, (ruta.fin - ruta.inicio + 1)));
+				const path = ruta.route.path.splice(ruta.inicio, (ruta.fin - ruta.inicio + 1));
+				ruta.route.polyline = utils.encode(path);
+				ruta.route.stops = [];
+				if(ruta.route.osisp){
+					path.forEach(location => {
+						if(location[2]) ruta.route.stops.push(location);
+					});
+				}
 				delete ruta.inicio;
 				delete ruta.fin;
 				delete ruta.route.path;

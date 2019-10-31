@@ -19,7 +19,7 @@ if(!locations){
 }
 
 const calculateSingle = async (locations) => {
-    const response = await calculate({rutas:data.result["OWcpsp0ID3"]["urban"],config:config,origen:locations.start,destino:locations.end,area:1,qty:5});
+    const response = await calculate({rutas:data.result["OWcpsp0ID3"]["massive"],config:config,origen:locations.start,destino:locations.end,area:1,qty:5});
     let responseStr = JSON.stringify(response);
     fs.writeFileSync('result.js', "var resultado = "+responseStr);
 }
@@ -34,5 +34,5 @@ const calculateLocations = async () => {
         
     };
 }
-calculateSingle({start:[11.016488, -74.840350],end:[11.011046, -74.828544]});
-// calculateLocations();
+// calculateSingle({start:[11.017898, -74.840488],end:[10.986177, -74.791963]});
+calculateLocations();
