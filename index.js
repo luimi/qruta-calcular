@@ -218,7 +218,8 @@ const nivel3 = () => {
 												proceso.dropoffs[idRD],
 												datos.rutas[datos.rutas.findIndex(x => x.id == idRD)],
 												null, datos.destino);
-											opciones.push(formarOpcion([recorrido1[0], recorrido2[0], recorrido3[0]]));
+											if(recorrido1.length>0 && recorrido2.length>0 && recorrido3.length>0)
+												opciones.push(formarOpcion([recorrido1[0], recorrido2[0], recorrido3[0]]));
 										}
 									}
 								}
